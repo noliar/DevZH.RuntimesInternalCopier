@@ -1,14 +1,36 @@
 ﻿{
   "version": "1.0.0-*",
+  "description": "A tool to copy the multi-platform runtime to current project",
+
+  "authors": [ "杜晓宇" ],
+
   "buildOptions": {
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "outputName": "dotnet-copy-runtimes"
+  },
+
+  "packOptions": {
+    "repository": {
+      "type": "git",
+      "url": "git://github.com/noliar/DevZH.RuntimesInternalCopier"
+    },
+    "tags": [
+      "DevZH",
+      "netcore",
+      "tool"
+    ],
+    "projectUrl": "https://github.com/noliar/DevZH.RuntimesInternalCopier",
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0"
   },
 
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.0"
-    }
+    },
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "System.Diagnostics.Process": "4.1.0-*",
+    "Newtonsoft.Json": "9.0.1"
   },
 
   "frameworks": {
