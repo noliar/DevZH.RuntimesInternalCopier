@@ -32,15 +32,15 @@ namespace DevZH.RuntimesInternalCopier
 
                 var lockJson = JObject.Parse(File.ReadAllText("project.lock.json"));
 
-                foreach (var libuvLib in lockJson["libraries"].OfType<JProperty>().Where(
+                foreach (var lib in lockJson["libraries"].OfType<JProperty>().Where(
                     p => p.Name.StartsWith(Prefix, StringComparison.Ordinal)))
                 {
-                    foreach (var filePath in libuvLib.Value["files"].Select(v => v.Value<string>()))
+                    foreach (var filePath in lib.Value["files"].Select(v => v.Value<string>()))
                     {
                         if (filePath.ToString().StartsWith("runtimes/", StringComparison.Ordinal))
                         {
                             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                            File.Copy(Path.Combine(packagesFolder, libuvLib.Name, filePath), filePath, overwrite: true);
+                            File.Copy(Path.Combine(packagesFolder, lib.Name, filePath), filePath, overwrite: true);
                         }
                     }
                 }
