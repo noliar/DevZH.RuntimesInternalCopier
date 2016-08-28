@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.DotNet.Cli.Utils;
+using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json.Linq;
 
 namespace DevZH.RuntimesInternalCopier
@@ -12,9 +15,15 @@ namespace DevZH.RuntimesInternalCopier
     {
         public string Prefix { get; }
 
-        public PrefixCommand(string prefix)
+        public bool EnablePack { get; }
+
+        public List<string> RemainArguments { get; private set; }
+
+        public PrefixCommand(string prefix, bool enablePack, List<string> remainArguments)
         {
             Prefix = prefix;
+            EnablePack = enablePack;
+            RemainArguments = remainArguments;
         }
 
         public int Run()
@@ -32,6 +41,10 @@ namespace DevZH.RuntimesInternalCopier
 
                 var lockJson = JObject.Parse(File.ReadAllText("project.lock.json"));
 
+                var set = false;
+
+                var versionSuffix = string.Empty;
+
                 foreach (var lib in lockJson["libraries"].OfType<JProperty>().Where(
                     p => p.Name.StartsWith(Prefix, StringComparison.Ordinal)))
                 {
@@ -43,6 +56,46 @@ namespace DevZH.RuntimesInternalCopier
                             File.Copy(Path.Combine(packagesFolder, lib.Name, filePath), filePath, overwrite: true);
                         }
                     }
+                    if (EnablePack && !set)
+                    {
+                        if (!RemainArguments.Contains("--version-suffix"))
+                        {
+                            if (string.IsNullOrEmpty(versionSuffix))
+                            {
+                                var array = lib.Name.Split('/');
+                                if (array.Length > 1)
+                                {
+                                    var version = array[1];
+                                    array = version.Split(new[] { '-' }, 2);
+                                    if (array.Length > 1)
+                                    {
+                                        versionSuffix = array[1];
+                                    }
+                                }
+                            }
+                        }
+                        
+                        
+                        set = true;
+                    }
+                }
+                if (EnablePack)
+                {
+                    Console.WriteLine("Copying the runtimes completed successfully, now you will pack the package");
+                    var args = RemainArguments;
+                    //IEnumerable<string> args = new []{ "--configuration", "Release" };
+                    if (!string.IsNullOrEmpty(versionSuffix))
+                    {
+                        args.AddRange(new List<string>
+                        {
+                            "--version-suffix",
+                            versionSuffix
+                        });
+                    }
+
+                    var command = Command.CreateDotNet("pack", args, null,
+                        null);
+                    var result = command.Execute();
                 }
             }
             catch (Exception ex)

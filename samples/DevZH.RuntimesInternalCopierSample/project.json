@@ -33,16 +33,16 @@
   },
 
   "tools": {
-    "DevZH.RuntimesInternalCopier": "1.0.0-*"
+    "DevZH.RuntimesInternalCopier": "1.0.1-*"
   },
 
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50"
     }
-  },
+  } /*,
 
-  "scripts": {
-    "precompile": "dotnet copy-runtimes -p DevZH.CImg.Captcha.Internal"
-  }
+ "scripts": {
+    "precompile": "dotnet copy-runtimes -p DevZH.CImg.Captcha.Internal --enable-pack"
+  }*/
 }

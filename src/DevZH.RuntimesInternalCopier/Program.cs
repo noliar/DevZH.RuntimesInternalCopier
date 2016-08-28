@@ -13,7 +13,7 @@ namespace DevZH.RuntimesInternalCopier
     {
         public static int Main(string[] args)
         {
-            var app = new CommandLineApplication
+            var app = new CommandLineApplication(false)
             {
                 Name = "dotnet copy-runtimes",
                 FullName = ".NET Core Native Runtimes Copier",
@@ -23,9 +23,15 @@ namespace DevZH.RuntimesInternalCopier
 
             var prefixOption = app.Option("-p|--prefix", "prefix of the internal packages", CommandOptionType.SingleValue);
 
+            var enablePackOption = app.Option("--enable-pack",
+                "after finishing copy libraries, pack the package using Release configuration",
+                CommandOptionType.NoValue);
+
             app.OnExecute(() =>
             {
                 var prefix = prefixOption.Value();
+
+                var enablePack = enablePackOption.HasValue();
 
                 if (string.IsNullOrEmpty(prefix))
                 {
@@ -35,9 +41,9 @@ namespace DevZH.RuntimesInternalCopier
 
                 Console.WriteLine("Copy the runtimes directory of internal package to current project");
 
-                var exitCode = new PrefixCommand(prefix).Run();
+                var exitCode = new PrefixCommand(prefix, enablePack, app.RemainingArguments).Run();
 
-                Console.WriteLine("Copying the runtimes completed successfully");
+                Console.WriteLine("Completed successfully.");
 
                 return exitCode;
             });
